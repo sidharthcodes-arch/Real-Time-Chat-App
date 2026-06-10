@@ -227,13 +227,14 @@ function timeLabel(ts) {
 .row.mine { justify-content: flex-end; }
 .bubble {
   max-width: 75%;
-  background: #f3f4f6;
+  background: #e5e7eb;
   border-radius: 12px;
   padding: 8px 12px;
+  color: #111827;
 }
 .row.mine .bubble { background: #2563eb; color: #fff; }
 .meta { display: flex; gap: 8px; align-items: baseline; margin-bottom: 2px; }
-.author { font-size: 12px; font-weight: 600; }
+.author { font-size: 12px; font-weight: 600; color: #374151; }
 .row.mine .author { color: #dbeafe; }
 .time { font-size: 11px; color: #9ca3af; }
 .row.mine .time { color: #bfdbfe; }
