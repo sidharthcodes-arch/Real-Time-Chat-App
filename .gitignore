@@ -1,0 +1,72 @@
+# Environment files
+.env
+.env.backup
+.env.production
+
+# Composer dependencies
+/vendor
+
+# Node dependencies
+/node_modules
+
+# Build assets
+/public/build
+/public/hot
+
+# Laravel storage keys
+/storage/*.key
+
+# Laravel cache, sessions, logs, compiled views
+/storage/logs/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/testing/*
+/storage/framework/views/*
+
+# Database files
+/database/*.sqlite
+/database/*.sqlite-journal
+
+# PHPUnit
+.phpunit.result.cache
+
+# Composer auth
+auth.json
+
+# NPM/Yarn logs
+npm-debug.log
+yarn-error.log
+yarn-debug.log
+
+# IDEs
+/.idea
+/.vscode
+/.fleet
+/.zed
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Coverage reports
+coverage/
+
+# Temporary files
+*.swp
+*.swo
+*~
+
+# Laravel Pint cache
+.pint.cache
+
+# PHPStan cache
+.phpstan.cache
+
+# Rector cache
+.rector
+
+# Pest cache
+.pest.cache
+
+# Miscellaneous
+.cache
