@@ -70,3 +70,5 @@ coverage/
 
 # Miscellaneous
 .cache
+
+/bootstrap/cache/

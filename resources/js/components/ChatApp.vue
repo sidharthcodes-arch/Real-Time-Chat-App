@@ -33,6 +33,10 @@ onMounted(async () => {
     //     scrollToBottom();
     // });
     // -------------------------------------------------------------------------
+    window.Echo.channel('chat').listen('.message.sent', (e) => {
+        messages.value.push(e.message ?? e);
+        scrollToBottom();
+    });
 });
 
 async function fetchMessages() {
@@ -64,7 +68,7 @@ async function send() {
             body,
         });
         // Optimistic local append so the sender sees their message immediately.
-        messages.value.push(data);
+        // messages.value.push(data);
         draft.value = '';
         scrollToBottom();
     } catch (e) {
@@ -73,6 +77,7 @@ async function send() {
         sending.value = false;
     }
 }
+
 
 function scrollToBottom() {
     nextTick(() => {

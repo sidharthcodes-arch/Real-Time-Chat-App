@@ -5,12 +5,13 @@ namespace App\Events;
 use App\Models\Message;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Broadcasting\Channel;
 /*
 |------------------------------------------------------------------------------
 | THE TASK LIVES HERE (and in resources/js).
 |------------------------------------------------------------------------------
-| This event is dispatched every time a message is stored, but right now it
+| This event is dispgit push -u origin mainatched every time a message is stored, but right now it
 | goes nowhere the browser can see.
 |
 | To make the app real-time, this event needs to broadcast on a channel that
@@ -28,11 +29,21 @@ use Illuminate\Queue\SerializesModels;
 | an event.
 |------------------------------------------------------------------------------
 */
-class MessageSent
+class MessageSent implements shouldBroadcast
 {
     use Dispatchable, SerializesModels;
 
     public function __construct(public Message $message)
     {
+    }
+
+    public function broadcastOn()
+    {
+        return new Channel('chat');
+    }
+
+    public function broadcastAs()
+    {
+        return 'message.sent';
     }
 }
