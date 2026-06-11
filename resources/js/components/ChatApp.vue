@@ -9,6 +9,8 @@ const draft = ref('');
 const messages = ref([]);
 const sending = ref(false);
 const listEl = ref(null);
+const typingUser = ref('');
+let typingTimeout = null;
 
 onMounted(async () => {
     const saved = window.localStorage.getItem(STORAGE_KEY);
@@ -37,6 +39,16 @@ onMounted(async () => {
         messages.value.push(e.message ?? e);
         scrollToBottom();
     });
+
+    window.Echo.channel('chat').listen('.user.typing', (e) => {
+        if (e.name !== name.value) {
+            typingUser.value = e.name;
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                typingUser.value = '';
+            }, 1000);
+        }
+    });
 });
 
 async function fetchMessages() {
@@ -47,6 +59,13 @@ async function fetchMessages() {
     } catch (e) {
         console.error('Failed to load messages', e);
     }
+}
+function onTyping() {
+    window.axios.post('/typing', { name: name.value });
+    clearTimeout(typingTimeout);
+    typingTimeout = setTimeout(() => {
+        typingUser.value = '';
+    }, 1000);
 }
 
 function join() {
@@ -138,9 +157,13 @@ function timeLabel(ts) {
           </div>
         </div>
       </div>
+      <div class="typing" v-if="typingUser">
+        {{ typingUser }} is typing...
+    </div>
 
       <footer class="composer">
         <input
+          @input="onTyping"
           v-model="draft"
           class="composer-input"
           type="text"
@@ -264,4 +287,10 @@ function timeLabel(ts) {
 }
 .btn.block { width: 100%; }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.typing {
+    padding: 4px 18px;
+    font-size: 12px;
+    color: #9ca3af;
+    font-style: italic;
+}
 </style>
