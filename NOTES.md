@@ -28,8 +28,23 @@ Three processes must be running simultaneously:
 7. Laravel Echo in Browser B receives the `message.sent` event
 8. Vue pushes the message into the `messages` array → UI updates instantly
 
+## Typing Indicator
+
+When a user types, the frontend POSTs to `/typing` with their name. Laravel fires a `UserTyping` event which broadcasts on the `chat` channel. Other browsers receive the `user.typing` event via Echo and display "X is typing..." for 1 second. This approach goes through Laravel instead of using Echo whispers because whispers require presence channels.
+
+## Online Users List
+
+Implemented using Laravel cache and a public channel. When a user joins the chat, the frontend POSTs to `/join`. Laravel stores the name in cache and broadcasts an updated users list via `UsersOnlineUpdated` event. When a user closes the tab, a native `fetch` request with `keepalive: true` POSTs to `/leave` to ensure the request completes before the browser closes. The online list updates in real time across all connected browsers.
+
+## Reconnection Handling
+
+Echo uses pusher-js under the hood which handles automatic reconnection natively. We added a visual indicator in the UI — a green dot when connected and a red dot with "Reconnecting..." text when the connection drops. This uses Echo's connector bindings:
+- `connected` → green dot
+- `disconnected` / `connecting` → red dot
+
 ## What I Would Add With More Time
 
-- **Typing indicator** — we can broadcast an  event such that  when the user is typing, show it in the UI
-- **Online users list** — we can do something  to track and display who is currently online
-- **Message deduplication** — currently the sender relies on the WebSocket broadcast to see their own message. A more robust approach would be to use something else as of now  I don't know ,what it would be but , I would love to find out and implement .
+- **Message deduplication** — use socket IDs to skip the sender's own broadcast
+- **Persistent online users** — current implementation uses cache which expires. A database backed approach would be more reliable.
+- **Multiple rooms** — extend the channel system to support multiple chat rooms
+- **Read receipts** — show when a message has been seen by other users
