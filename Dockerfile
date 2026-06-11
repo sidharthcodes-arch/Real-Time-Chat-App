@@ -16,7 +16,12 @@ COPY . .
 RUN composer install --no-dev --optimize-autoloader
 RUN npm install && npm run build
 RUN touch database/database.sqlite
-
+RUN mkdir -p storage/framework/cache \
+    storage/framework/sessions \
+    storage/framework/views \
+    storage/logs \
+    bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
 EXPOSE 8000
 
 CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=8000
