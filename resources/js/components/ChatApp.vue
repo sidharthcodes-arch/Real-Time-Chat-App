@@ -2,7 +2,7 @@
 import { ref, nextTick, onMounted } from 'vue';
 
 const STORAGE_KEY = 'chat_name';
-
+const onlineUsers = ref([]);
 const name = ref('');
 const joined = ref(false);
 const draft = ref('');
@@ -49,6 +49,29 @@ onMounted(async () => {
             }, 1000);
         }
     });
+    window.Echo.channel('chat').listen('.users.online', (e) => {
+      onlineUsers.value = e.users;
+    });
+
+    // If the user was already joined, trigger the join endpoint now that listeners are set up
+    if (saved) {
+        window.axios.post('/join', { name: saved });
+    }
+
+    window.addEventListener('beforeunload', () => {
+      if (name.value) {
+          const csrfToken = document.head.querySelector('meta[name="csrf-token"]')?.content;
+          fetch('/leave', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'X-CSRF-TOKEN': csrfToken || '',
+              },
+              body: JSON.stringify({ name: name.value }),
+              keepalive: true
+          });
+      }
+    });
 });
 
 async function fetchMessages() {
@@ -74,7 +97,8 @@ function join() {
     name.value = trimmed;
     window.localStorage.setItem(STORAGE_KEY, trimmed);
     joined.value = true;
-}
+    window.axios.post('/join', { name: trimmed });
+}         
 
 async function send() {
     const body = draft.value.trim();
@@ -138,6 +162,10 @@ function timeLabel(ts) {
           <strong>General</strong>
         </div>
         <div class="me">{{ name }}</div>
+        <div class="online-users">
+          ● Online ({{ onlineUsers.length }})
+          <span v-for="u in onlineUsers" :key="u" class="online-user">{{ u }}</span>
+      </div>
       </header>
 
       <div ref="listEl" class="messages">
@@ -292,5 +320,19 @@ function timeLabel(ts) {
     font-size: 12px;
     color: #9ca3af;
     font-style: italic;
+}
+.online-users {
+    font-size: 12px;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.online-user {
+    background: #f3f4f6;
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-size: 11px;
 }
 </style>
