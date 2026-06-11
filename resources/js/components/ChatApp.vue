@@ -11,6 +11,7 @@ const sending = ref(false);
 const listEl = ref(null);
 const typingUser = ref('');
 let typingTimeout = null;
+const connected = ref(true);
 
 onMounted(async () => {
     const saved = window.localStorage.getItem(STORAGE_KEY);
@@ -71,6 +72,17 @@ onMounted(async () => {
               keepalive: true
           });
       }
+    });
+    window.Echo.connector.pusher.connection.bind('connected', () => {
+    connected.value = true;
+    });
+
+    window.Echo.connector.pusher.connection.bind('disconnected', () => {
+        connected.value = false;
+    });
+
+    window.Echo.connector.pusher.connection.bind('connecting', () => {
+        connected.value = false;
     });
 });
 
@@ -158,7 +170,8 @@ function timeLabel(ts) {
     <div v-else class="chat">
       <header class="chat-header">
         <div class="room">
-          <span class="dot" title="Live connection not wired up yet"></span>
+          <span class="dot" :class="{ connected: connected }" :title="connected ? 'Connected' : 'Reconnecting...'"></span>
+          <span class="connection-status">{{ connected ? '' : 'Reconnecting...' }}</span>
           <strong>General</strong>
         </div>
         <div class="me">{{ name }}</div>
@@ -335,4 +348,7 @@ function timeLabel(ts) {
     border-radius: 99px;
     font-size: 11px;
 }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; }
+.dot.connected { background: #22c55e; }
+.connection-status { font-size: 11px; color: #ef4444; }
 </style>
