@@ -1,30 +1,97 @@
 services:
   - type: web
-    name: laravel-chat
+    name: realtime-chat
     runtime: docker
+    plan: free
     dockerfilePath: ./Dockerfile
+    dockerContext: .
+
+    # Reverb runs on 8080 inside the container but Render exposes port 80 (HTTP)
+    # We need a SECOND service for Reverb WebSocket traffic on its own port
     envVars:
+      - key: APP_NAME
+        value: "Realtime Chat Test"
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
-        value: false
+        value: "false"
       - key: APP_KEY
         generateValue: true
+
+      # Set this after first deploy — it will be your Render URL
+      - key: APP_URL
+        value: https://your-app-name.onrender.com
+
+      # Database — filled by Render from the database block below
       - key: DB_CONNECTION
-        value: sqlite
+        value: mysql
+      - key: DB_HOST
+        fromDatabase:
+          name: realtime-chat-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: realtime-chat-db
+          property: port
       - key: DB_DATABASE
-        value: /var/data/database.sqlite
+        fromDatabase:
+          name: realtime-chat-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: realtime-chat-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: realtime-chat-db
+          property: password
+
+      - key: SESSION_DRIVER
+        value: file
+      - key: CACHE_STORE
+        value: file
+      - key: QUEUE_CONNECTION
+        value: database
+
       - key: BROADCAST_CONNECTION
         value: reverb
+
+      # Reverb config
+      # REVERB_HOST must be set to the Render URL of the reverb service (no https://)
       - key: REVERB_APP_ID
-        value: 419271
+        value: "745376"
       - key: REVERB_APP_KEY
-        value: pp427mmqvd8gzpwlucjv
+        value: nyk0xsrg15uvwneyfbgp
       - key: REVERB_APP_SECRET
-        value: zudifarllhucguinfmty
+        value: lh3kgwkkgk7rqwxg32qz
       - key: REVERB_HOST
-        value: 0.0.0.0
+        value: your-app-name.onrender.com  # same host, different port
       - key: REVERB_PORT
-        value: 8080
+        value: "443"
       - key: REVERB_SCHEME
-        value: http
+        value: https
+
+      # Frontend (Vite bakes these in at build time via ARG)
+      - key: VITE_REVERB_APP_KEY
+        value: nyk0xsrg15uvwneyfbgp
+      - key: VITE_REVERB_HOST
+        value: your-app-name.onrender.com
+      - key: VITE_REVERB_PORT
+        value: "443"
+      - key: VITE_REVERB_SCHEME
+        value: https
+
+    buildArgs:
+      - name: VITE_REVERB_APP_KEY
+        value: nyk0xsrg15uvwneyfbgp
+      - name: VITE_REVERB_HOST
+        value: your-app-name.onrender.com
+      - name: VITE_REVERB_PORT
+        value: "443"
+      - name: VITE_REVERB_SCHEME
+        value: https
+
+databases:
+  - name: realtime-chat-db
+    plan: free
+    databaseName: realtime_chat
