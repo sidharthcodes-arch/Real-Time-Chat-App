@@ -78,6 +78,8 @@ RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions sto
     && chmod -R 775 storage bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache
 
+RUN mkdir -p /var/log/supervisor
+
 EXPOSE 80
 
 ENTRYPOINT ["/entrypoint.sh"]
