@@ -1,5 +1,2 @@
-[deploy]
-startCommand = "/entrypoint.sh"
-
-[[services]]
-internalPort = 80
+[build]
+buildArgs = { VITE_REVERB_APP_KEY = "nyk0xsrg15uvwneyfbgp", VITE_REVERB_HOST = "real-time-chat-app-production-0493.up.railway.app", VITE_REVERB_PORT = "443", VITE_REVERB_SCHEME = "https" }
